@@ -1,5 +1,7 @@
+from io import BytesIO
 import discord
 from discord.ext import commands
+import matplotlib.pyplot as plt
 
 from src.query import Query
 from koushiro.settings import __version__
@@ -43,4 +45,16 @@ async def average_polarity(ctx):
     embed.add_field(name='Negative :red_circle:', value=f"{data['negative']}%", inline=False)
     embed.add_field(name='Neutral :white_circle: ', value=f"{data['neutral']}%", inline=False)
 
-    await ctx.send('Average sentiment polarities from messages', embed=embed)
+    plt.bar(height=data.values(), x=data.keys())
+    plt.title('Messages average sentiment polarities')
+    fig = plt.gcf()
+    imgdata = BytesIO()
+    fig.savefig(imgdata, format='png')
+    imgdata.seek(0)
+    plt.close()
+
+    await ctx.send(
+        'Average sentiment polarities from messages',
+        embed=embed,
+        file=discord.File(imgdata, filename='file.png')
+    )
