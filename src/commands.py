@@ -58,3 +58,27 @@ async def average_polarity(ctx):
         embed=embed,
         file=discord.File(imgdata, filename='file.png')
     )
+
+
+@client.command(aliases=['msg_rank', 'mrank'])
+async def message_rank(ctx):
+    """
+    Return the rank ladder for messages sent by users in Twitch live chat
+    """
+    try:
+        data = Query.query_top_ten()['data']['topTen']
+    except:
+        return await ctx.send('Sorry, something went wrong. Try again later!')
+
+    embed = discord.Embed(color=0x1E1E1E, type="rich")
+    for i, record in enumerate(data):
+        embed.add_field(
+            name=f'{i+1}) {record["username"]}',
+            value=f'Messages: {record["messagesCount"]}',
+            inline=False
+        )
+
+    await ctx.send(
+        'Message sending ranking',
+        embed=embed
+    )
