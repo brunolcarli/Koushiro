@@ -82,3 +82,32 @@ async def message_rank(ctx):
         'Message sending ranking',
         embed=embed
     )
+
+
+@client.command(aliases=['msent', 'mpols', 'mps', 'sent_rate', 'sr'])
+async def messages_sentiment_rate(ctx):
+    """
+    Plots the sentiment and offensive level of each message.
+    """
+    try:
+        data = Query.query_chat_messages()['data']['chatMessages']
+    except:
+        return await ctx.send('Sorry, something went wrong. Try again later!')
+
+    sents = [i['messageSentiment'] for i in data]
+    off_lvs = [i['messageOffenseLevel'] for i in data]
+
+    plt.plot(sents, label='Sentiment polarity')
+    plt.plot(off_lvs, label='Offensive level')
+    plt.legend()
+    plt.title('Sentiment and offensive rate')
+    fig = plt.gcf()
+    imgdata = BytesIO()
+    fig.savefig(imgdata, format='png')
+    imgdata.seek(0)
+    plt.close()
+
+    await ctx.send(
+        'Message sentiment and offesive rate',
+        file=discord.File(imgdata, filename='file.png')        
+    )
